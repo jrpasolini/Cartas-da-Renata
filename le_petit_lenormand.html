@@ -1,0 +1,965 @@
+<!DOCTYPE html> 
+<html lang="pt-BR"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Oráculo Petit Le Normand</title> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:wght@400;600&display=swap" rel="stylesheet"> 
+    <style> 
+        body { 
+            background-image: url('https://www.transparenttextures.com/patterns/old-parchment.png'); 
+            background-color: #fdf6e3; 
+            font-family: 'Lora', serif; 
+            color: #5d4037; 
+        } 
+        .font-playfair { 
+            font-family: 'Playfair Display', serif; 
+        } 
+        .card-title-home { 
+            color: #a52a2a; 
+            font-weight: 600; 
+        } 
+        .vintage-border { 
+            border: 10px solid transparent; 
+            border-image: url(https://i.pinimg.com/originals/9f/bd/13/9fbd133a494957e62395d43340578853.jpg) 30 round; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+        } 
+        .element-bg-fogo { 
+            background-image: url('https://www.transparenttextures.com/patterns/p4.png'), url('https://www.transparenttextures.com/patterns/old-parchment.png'); 
+            background-color: #7f1d1d; 
+        } 
+        .element-bg-terra { 
+            background-image: url('https://www.transparenttextures.com/patterns/p4.png'), url('https://www.transparenttextures.com/patterns/old-parchment.png'); 
+            background-color: #422006; 
+        } 
+        .element-bg-ar { 
+            background-image: url('https://www.transparenttextures.com/patterns/p4.png'), url('https://www.transparenttextures.com/patterns/old-parchment.png'); 
+            background-color: #f0e68c; 
+        } 
+        .element-bg-agua { 
+            background-image: url('https://www.transparenttextures.com/patterns/p4.png'), url('https://www.transparenttextures.com/patterns/old-parchment.png'); 
+            background-color: #0c4a6e; 
+        } 
+        .text-light { 
+            color: #fdf6e3; 
+        } 
+        .text-dark { 
+            color: #5d4037; 
+        } 
+        .shuffle-container { 
+            perspective: 1000px; 
+        } 
+        .card-flip { 
+            position: relative; 
+            width: 200px; 
+            height: 300px; 
+            transform-style: preserve-3d; 
+            transition: transform 1s; 
+        } 
+        .card-flip.is-flipped { 
+            transform: rotateY(180deg); 
+        } 
+        .card-face { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            backface-visibility: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 1rem; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+        } 
+        .card-face-back { 
+            background-color: #5d4037; 
+            background-image: url('https://www.transparenttextures.com/patterns/dark-circles.png'); 
+        } 
+        .card-face-front { 
+            transform: rotateY(180deg); 
+            background-color: #fdf6e3; 
+        } 
+        .celestial-symbol { 
+            font-size: 1.5rem; 
+            color: #bfa345; 
+        } 
+    </style> 
+</head> 
+<body class="antialiased"> 
+
+    <div id="app" class="container mx-auto p-4 md:p-8"> 
+
+        <header class="text-center mb-8"> 
+            <h1 class="font-playfair text-5xl md:text-7xl text-amber-900 drop-shadow-lg">Oráculo Petit Lenormand</h1> 
+            <p class="text-amber-800 mt-2 text-lg">O baralho completo de Madame Lenormand para Estudo e Consulta</p> 
+        </header> 
+
+        <nav class="bg-black/10 p-4 rounded-lg shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between gap-4"> 
+            <div class="flex flex-wrap gap-4 justify-center"> 
+                <button onclick="showView('home-view')" class="px-4 py-2 bg-amber-800 text-white rounded-lg shadow-md hover:bg-amber-900 transition-colors">Todas as Cartas</button> 
+                <button onclick="showView('random-draw-view')" class="px-4 py-2 bg-amber-800 text-white rounded-lg shadow-md hover:bg-amber-900 transition-colors">Tirar uma Carta</button> 
+                <div class="relative inline-block text-left"> 
+                    <button id="explore-menu-button" class="inline-flex justify-center w-full rounded-md border border-amber-700 shadow-sm px-4 py-2 bg-amber-800 text-white hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-amber-800 focus:ring-white"> 
+                        Explorar por... 
+                        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"> 
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /> 
+                        </svg> 
+                    </button> 
+                    <div id="explore-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#fdf6e3] ring-1 ring-black ring-opacity-5 hidden z-10"> 
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="explore-menu-button"> 
+                        </div> 
+                    </div> 
+                </div> 
+            </div> 
+            <div class="relative w-full md:w-auto"> 
+                <input type="text" id="search-input" placeholder="Pesquisar por nome, palavra-chave..." class="w-full md:w-64 px-4 py-2 rounded-lg border-2 border-amber-700 bg-[#fdf6e3] focus:border-amber-900 focus:outline-none"> 
+            </div> 
+        </nav> 
+
+        <main id="main-content"> 
+            <section id="home-view" class="p-4 md:p-8 vintage-border bg-black/5"> 
+                <p id="filter-info" class="text-center text-amber-800 font-semibold mb-6 hidden"></p> 
+                <div id="card-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"> 
+                </div> 
+            </section> 
+
+            <section id="card-detail-view" class="hidden p-4 md:p-8 vintage-border"> 
+                <button onclick="showView('home-view')" class="mb-8 px-4 py-2 bg-amber-800 text-white rounded-lg shadow-md hover:bg-amber-900 transition-colors">&larr; Voltar para Todas as Cartas</button> 
+                <div id="card-detail-content" class="grid grid-cols-1 md:grid-cols-3 gap-8"> 
+                </div> 
+            </section> 
+
+            <section id="random-draw-view" class="hidden text-center p-4 md:p-8 vintage-border bg-black/5"> 
+                <h2 class="font-playfair text-4xl mb-4 text-amber-900">Consulta ao Oráculo</h2> 
+                <p class="mb-8 text-lg">Concentre-se em sua questão e clique no botão para revelar sua carta.</p> 
+                <button id="draw-button" class="px-6 py-3 bg-amber-800 text-white text-xl rounded-lg shadow-xl hover:bg-amber-900 transition-all transform hover:scale-105">Embaralhar e Tirar uma Carta</button> 
+                <div id="shuffle-animation-container" class="mt-8 flex justify-center items-center h-96 hidden"> 
+                    <div class="shuffle-container"> 
+                        <div id="card-flip-container" class="card-flip"> 
+                            <div class="card-face card-face-back"> 
+                                <span class="celestial-symbol text-7xl">✧</span> 
+                            </div> 
+                            <div class="card-face card-face-front" id="random-card-front"> 
+                            </div> 
+                        </div> 
+                    </div> 
+                </div> 
+            </section> 
+        </main> 
+
+        <footer class="text-center mt-12 text-amber-800"> 
+            <p>&copy; 2025 Antonio Pasolini e Renata Sheila</p> 
+        </footer> 
+
+    </div> 
+
+    <script> 
+        const cardDatabase = [ 
+    { 
+        id: 1, 
+        nome: "O Cavaleiro", 
+        imagem: "https://imgpx.com/Ih85wAunQHyT.jpg", 
+        descricao: "O Cavaleiro é o arauto do baralho, a carta das notícias, da ação e do movimento. Ele chega rapidamente, trazendo consigo mensagens, novidades ou a visita de alguém. Representa a velocidade, a iniciativa e o progresso em direção a um objetivo. A energia desta carta é dinâmica, jovem e cheia de vigor, impulsionando os eventos para a frente. Pode indicar a chegada de uma pessoa importante ou de uma informação que mudará o curso das coisas.", 
+        interpretacaoImagem: "A figura de um homem a cavalo simboliza o ato de ir ou vir, a superação de distâncias para entregar algo. O cavalo, em si, é um símbolo de força, liberdade e energia vital. A direção em que o cavaleiro se move pode ser significativa: para a direita, em direção ao futuro; para a esquerda, trazendo algo do passado. Suas vestes e postura indicam nobreza e prontidão para a ação.", 
+        palavrasChave: ["notícias", "mensagens", "movimento", "ação", "visitas", "rapidez", "chegada"], 
+        simNao: { resposta: "Sim", justificativa: "Indica movimento rápido, notícias e ação, geralmente de natureza positiva e progressiva." },
+        elemento: "Fogo", 
+        signo: "Áries", 
+        planeta: "Marte", 
+        naipe: "Nove de Copas", 
+        referenciasCabalisticas: "Associado à energia dinâmica e iniciadora de Chokmah (Sabedoria) e à esfera de Netzach (Vitória, Energia), representando o impulso para a manifestação.", 
+        cristais: ["Granada", "Cornalina", "Jaspe Vermelho"], 
+        ervas: ["Louro", "Menta", "Gengibre"] 
+    }, 
+    { 
+        id: 2, 
+        nome: "O Trevo", 
+        imagem: "https://imgpx.com/DFqGxoVTVkUR.jpg", 
+        descricao: "O Trevo é um pequeno sopro de sorte, uma oportunidade inesperada que surge no caminho. Diferente da grande sorte, ele representa as pequenas alegrias, as soluções rápidas para problemas menores e a esperança. É um lembrete de que mesmo em situações difíceis, há uma chance para que as coisas melhorem. Sua sorte é passageira e precisa ser aproveitada no momento em que aparece. Traz um alívio momentâneo e um otimismo renovado.", 
+        interpretacaoImagem: "O trevo de quatro folhas é um símbolo universal de boa sorte. Sua simplicidade e pequenez na imagem reforçam a ideia de que a sorte que ele traz é modesta, mas bem-vinda. Ele cresce rente ao chão, sugerindo que as oportunidades podem estar bem debaixo do nosso nariz, bastando um pouco de atenção para encontrá-las.", 
+        palavrasChave: ["sorte", "oportunidade", "esperança", "pequenas alegrias", "alívio", "risco calculado"], 
+        simNao: { resposta: "Sim", justificativa: "Representa sorte e oportunidades, mesmo que pequenas e passageiras, inclinando a balança para o positivo." },
+        elemento: "Terra", 
+        signo: "Touro", 
+        planeta: "Vênus", 
+        naipe: "Seis de Ouros", 
+        referenciasCabalisticas: "Ligado à esfera de Chesed (Misericórdia, Abundância) de forma modesta, como uma pequena bênção ou um presente inesperado no plano material de Malkuth.", 
+        cristais: ["Jade", "Aventurina Verde", "Ágata Musgo"], 
+        ervas: ["Trevo", "Manjericão", "Hortelã"] 
+    }, 
+    { 
+        id: 3, 
+        nome: "O Navio", 
+        imagem: "https://imgpx.com/dz9fCNnlxM3I.jpg", 
+        descricao: "O Navio fala de viagens, distância e exploração. Representa jornadas, sejam elas físicas (para lugares distantes), emocionais (uma jornada interior) ou comerciais (negócios internacionais, importação/exportação). Esta carta indica um movimento lento, mas constante, em direção a novos horizontes. Pode significar saudade, nostalgia de casa ou a busca por novas oportunidades em terras estrangeiras. É a carta do comércio, da expansão e da despedida.", 
+        interpretacaoImagem: "Um navio navegando em águas abertas é o símbolo máximo da viagem e da exploração do desconhecido. A água representa o inconsciente e as emoções, sugerindo que a viagem também pode ser de autodescoberta. O tamanho do navio indica um planejamento e recursos significativos, diferenciando-o do movimento rápido e impulsivo do Cavaleiro.", 
+        palavrasChave: ["viagem", "distância", "comércio", "saudade", "expansão", "novos horizontes", "despedida"], 
+        simNao: { resposta: "Talvez", justificativa: "Indica movimento e mudança, cujo resultado (positivo ou negativo) depende das cartas adjacentes e do contexto da pergunta." },
+        elemento: "Água", 
+        signo: "Peixes", 
+        planeta: "Netuno", 
+        naipe: "Dez de Espadas", 
+        referenciasCabalisticas: "Conecta-se à energia de Binah (Entendimento, O Grande Mar) e à jornada através das águas do inconsciente. Simboliza a transição entre diferentes estados de ser ou locais.", 
+        cristais: ["Água-marinha", "Lápis-lazúli", "Sodalita"], 
+        ervas: ["Sândalo", "Erva-doce", "Anis Estrelado"] 
+    }, 
+    { 
+        id: 4, 
+        nome: "A Casa", 
+        imagem: "https://imgpx.com/v6bixfEXRPVf.jpg", 
+        descricao: "A Casa é o símbolo do lar, da família, da segurança e da estabilidade. Representa nosso espaço privado, nosso refúgio, e as pessoas que consideramos nossa base. Esta carta fala de conforto, tradição, raízes e do ambiente familiar. Pode se referir a um imóvel físico, a um negócio familiar ou ao sentimento de pertencimento. É a estrutura que nos dá suporte e proteção. Em um contexto negativo, pode indicar isolamento ou estagnação.", 
+        interpretacaoImagem: "A imagem de uma casa sólida e acolhedora evoca sentimentos de segurança, conforto e pertencimento. O jardim ou a cerca ao redor podem simbolizar a privacidade e a proteção do espaço íntimo. É a nossa base de operações, o lugar para onde sempre retornamos.", 
+        palavrasChave: ["lar", "família", "segurança", "estabilidade", "conforto", "tradição", "imóveis"], 
+        simNao: { resposta: "Sim", justificativa: "Simboliza segurança, estabilidade e conforto, indicando uma base sólida e um resultado afirmativo." },
+        elemento: "Terra", 
+        signo: "Câncer", 
+        planeta: "Lua", 
+        naipe: "Rei de Copas", 
+        referenciasCabalisticas: "Representa a estrutura e a base em Malkuth (O Reino, o plano físico). Está ligada à segurança e ao fundamento que Yesod (A Fundação) provê para a personalidade.", 
+        cristais: ["Quartzo Fumê", "Jaspe Paisagem", "Selenita Laranja"], 
+        ervas: ["Manjericão", "Alecrim", "Sálvia"] 
+    }, 
+    { 
+        id: 5, 
+        nome: "A Árvore", 
+        imagem: "https://imgpx.com/xoyKLqLH6V1o.jpg", 
+        descricao: "A Árvore simboliza a saúde, o crescimento lento e natural, a vitalidade e as raízes. Fala de projetos de longo prazo, de ancestralidade e da conexão com a vida. Representa tudo que cresce e se desenvolve com o tempo, exigindo paciência e cuidado. É uma carta de boa saúde, estabilidade e força. Pode também indicar uma conexão com a natureza ou questões kármicas e de linhagem familiar. Negativamente, pode apontar para problemas de saúde ou tédio.", 
+        interpretacaoImagem: "Uma árvore forte, com raízes profundas e galhos que se estendem para o céu, é um símbolo poderoso de vida, crescimento e conexão entre o céu e a terra. Suas raízes representam o passado e a ancestralidade, enquanto seus galhos simbolizam o crescimento e as aspirações futuras. O tronco é a força e a saúde no presente.", 
+        palavrasChave: ["saúde", "crescimento", "vitalidade", "ancestralidade", "paciência", "natureza", "longo prazo"], 
+        simNao: { resposta: "Sim", justificativa: "Aponta para crescimento, saúde e estabilidade, confirmando um resultado positivo, embora possa levar tempo para se manifestar." },
+        elemento: "Terra", 
+        signo: "Touro", 
+        planeta: "Saturno", 
+        naipe: "Sete de Copas", 
+        referenciasCabalisticas: "Fortemente ligada à Árvore da Vida em si. Representa o crescimento e a estrutura que conecta Malkuth (Terra) a Tiphareth (Céu/Sol) através do pilar central. Simboliza a saúde do corpo como um microcosmo.", 
+        cristais: ["Ágata Musgo", "Quartzo Verde", "Madeira Petrificada"], 
+        ervas: ["Carvalho", "Eucalipto", "Pinheiro"] 
+    }, 
+    { 
+        id: 6, 
+        nome: "As Nuvens", 
+        imagem: "https://imgpx.com/io0MErl9IPa9.jpg", 
+        descricao: "As Nuvens trazem confusão, incerteza e falta de clareza. Representam um período de dúvidas, onde a verdade está obscura e os pensamentos estão turvos. Esta carta alerta para mal-entendidos, enganos e a impossibilidade de ver a situação como ela realmente é. Geralmente, esta confusão é temporária, como nuvens que passam. A carta tem um lado claro e um lado escuro, indicando que a clareza está próxima, mas primeiro é preciso atravessar a tempestade.", 
+        interpretacaoImagem: "A imagem de nuvens densas e escuras de um lado, e mais claras do outro, é a chave para sua interpretação. O lado escuro paira sobre o presente ou o passado, trazendo a confusão. O lado claro aponta para o futuro, indicando que a crise passará e a clareza retornará. Elas obscurecem a visão, simbolizando a falta de discernimento.", 
+        palavrasChave: ["confusão", "incerteza", "dúvidas", "falta de clareza", "mal-entendidos", "tristeza passageira"], 
+        simNao: { resposta: "Não", justificativa: "Traz confusão, incerteza e falta de clareza, indicando um resultado negativo ou, no mínimo, obscuro e desfavorável." },
+        elemento: "Ar", 
+        signo: "Gêmeos", 
+        planeta: "Mercúrio", 
+        naipe: "Rei de Paus", 
+        referenciasCabalisticas: "Associada ao mundo mental de Yetzirah (Formação) e à esfera de Hod (Esplendor, Intelecto) quando este está obscurecido. Representa a ofuscação da mente, a incapacidade de perceber a verdade.", 
+        cristais: ["Ametista", "Lepidolita", "Quartzo Fumê"], 
+        ervas: ["Valeriana", "Camomila", "Lavanda"] 
+    }, 
+    { 
+        id: 7, 
+        nome: "A Serpente", 
+        imagem: "https://imgpx.com/EFKxKDZTlRI6.jpg", 
+        descricao: "A Serpente é uma carta de alerta. Ela representa traição, engano, falsidade e perigo. Pode indicar uma pessoa traiçoeira no seu caminho, muitas vezes uma rival ou alguém que age pelas suas costas. Também fala de tentações, complicações e desvios. Por outro lado, a serpente também é um símbolo de sabedoria, cura e transformação (a troca de pele). Portanto, pode indicar a necessidade de usar a inteligência e a astúcia para superar um problema ou um momento de renovação.", 
+        interpretacaoImagem: "A serpente rastejando, pronta para dar o bote, é uma imagem poderosa de perigo oculto. Sua natureza sinuosa reflete os caminhos tortuosos da traição e da mentira. No entanto, o símbolo do Ouroboros (a serpente que morde a própria cauda) e o bastão de Esculápio (medicina) mostram seu lado de sabedoria, cura e ciclos de renovação.", 
+        palavrasChave: ["traição", "engano", "falsidade", "rival", "complicações", "sabedoria", "cura"], 
+        simNao: { resposta: "Não", justificativa: "Alerta para traição, engano e complicações, apontando claramente para um resultado negativo e perigoso." },
+        elemento: "Terra", 
+        signo: "Escorpião", 
+        planeta: "Plutão", 
+        naipe: "Dama de Paus", 
+        referenciasCabalisticas: "Relacionada à energia de Geburah (Rigor, Julgamento) no sentido de expor a verdade oculta. Sua dualidade conecta-se ao Caminho da Serpente da Sabedoria que sobe a Árvore da Vida, representando tanto o veneno quanto o antídoto.", 
+        cristais: ["Obsidiana", "Olho de Tigre", "Malaquita"], 
+        ervas: ["Arruda", "Losna", "Guiné"] 
+    }, 
+    { 
+        id: 8, 
+        nome: "O Caixão", 
+        imagem: "https://imgpx.com/nGrdW8pTpGVn.jpg", 
+        descricao: "O Caixão representa o fim, as transformações e as finalizações necessárias. É a carta do término de um ciclo para que outro possa começar. Pode indicar o fim de um relacionamento, de um emprego, de uma fase da vida ou de um padrão de comportamento. Embora assustadora, esta carta é essencial para o crescimento, pois fala de deixar para trás o que não serve mais. Pode também, em casos mais literais e dependendo das cartas ao redor, indicar doença ou perdas materiais significativas. É um convite à renovação.", 
+        interpretacaoImagem: "O caixão é o símbolo universal do fim da vida, mas no Lenormand seu significado é mais amplo: o fim de qualquer coisa. É o recipiente que guarda o que acabou. É um final definitivo, uma porta que se fecha para que outra possa se abrir. A escuridão associada a ele representa o vazio necessário antes do renascimento.", 
+        palavrasChave: ["fim", "transformação", "finalização", "perda", "renovação", "doença", "término"], 
+        simNao: { resposta: "Não", justificativa: "Representa finais, perdas e encerramentos. A resposta é negativa, pois indica o término de algo de forma definitiva." },
+        elemento: "Terra", 
+        signo: "Escorpião", 
+        planeta: "Plutão", 
+        naipe: "Nove de Ouros", 
+        referenciasCabalisticas: "Associado à Sephirah Daath (Conhecimento), o abismo que deve ser atravessado, representando a morte do ego e a transformação profunda. É a energia de Geburah (Rigor) aplicada para cortar o que está morto.", 
+        cristais: ["Ônix", "Turmalina Negra", "Obsidiana Floco de Neve"], 
+        ervas: ["Cipreste", "Mirra", "Sálvia"] 
+    }, 
+    { 
+        id: 9, 
+        nome: "O Buquê", 
+        imagem: "https://imgpx.com/v5ZcU1WuE870.jpg", 
+        descricao: "O Buquê é a carta da alegria, da beleza, dos presentes e da felicidade. Representa um gesto de carinho, um convite, um reconhecimento ou uma surpresa agradável. Fala de harmonia, gratidão e da apreciação das coisas boas da vida. É um momento de celebração e contentamento. Pode indicar a chegada de um presente, um elogio sincero ou um evento social feliz. A beleza e a gentileza estão no ar quando esta carta aparece.", 
+        interpretacaoImagem: "Um buquê de flores coloridas é um presente clássico, um gesto de apreço e afeto. A variedade de flores simboliza as múltiplas facetas da alegria e da beleza. Sua natureza efêmera nos lembra de aproveitar o momento de felicidade. É uma carta que agrada os sentidos e aquece o coração.", 
+        palavrasChave: ["alegria", "beleza", "presente", "gentileza", "convite", "harmonia", "gratidão"], 
+        simNao: { resposta: "Sim", justificativa: "É uma carta de alegria, presentes e felicidade, indicando um resultado positivo e muito favorável." },
+        elemento: "Ar", 
+        signo: "Libra", 
+        planeta: "Vênus", 
+        naipe: "Dama de Espadas", 
+        referenciasCabalisticas: "Conectada à beleza e harmonia de Tiphareth (Beleza, Equilíbrio) e à generosidade de Chesed (Misericórdia). Representa a manifestação da graça e da beleza no mundo.", 
+        cristais: ["Quartzo Rosa", "Rodocrosita", "Kunzita"], 
+        ervas: ["Rosa", "Jasmim", "Lavanda"] 
+    }, 
+    { 
+        id: 10, 
+        nome: "A Foice", 
+        imagem: "https://imgpx.com/VMXl3cPDOVaH.jpg", 
+        descricao: "A Foice é a carta do corte, da decisão rápida e, por vezes, dolorosa. Ela age de forma súbita e irreversível. Representa colheitas, mas também rupturas, perigos e a necessidade de eliminar algo da sua vida de forma rápida e decisiva. Pode indicar uma cirurgia, um acidente ou o fim abrupto de uma situação. É uma ferramenta, e seu efeito (bom ou mau) depende de como é usada e das cartas ao seu redor. Pode ser um corte necessário para a libertação ou uma perda repentina.", 
+        interpretacaoImagem: "A foice é uma ferramenta agrícola usada para a colheita, o que lhe confere um aspecto positivo de recolher os frutos do trabalho. No entanto, sua lâmina afiada também a torna uma arma, simbolizando perigo, cortes e decisões radicais. A ação da foice é rápida e final, não há como voltar atrás depois do corte.", 
+        palavrasChave: ["corte", "decisão rápida", "ruptura", "perigo", "colheita", "súbito", "eliminação"], 
+        simNao: { resposta: "Talvez", justificativa: "Representa um corte rápido ou uma decisão súbita. O resultado pode ser \"sim\" (se o corte for benéfico) ou \"não\" (se for uma perda), dependendo do contexto." },
+        elemento: "Ar", 
+        signo: "Virgem", 
+        planeta: "Urano", 
+        naipe: "Valete de Ouros", 
+        referenciasCabalisticas: "Associada ao poder de discriminação e julgamento de Geburah (Rigor). É a espada da justiça que corta o excesso e o que não é mais necessário, agindo com a velocidade do pensamento para separar o joio do trigo.", 
+        cristais: ["Hematita", "Obsidiana", "Selenita"], 
+        ervas: ["Urtiga", "Cardo Mariano", "Absinto"] 
+    }, 
+    { 
+        id: 11, 
+        nome: "O Chicote", 
+        imagem: "https://imgpx.com/9Z1cwuqmjhsc.jpg", 
+        descricao: "O Chicote fala de conflitos, discussões, discórdia e repetição. Representa atritos, brigas, debates acalorados e, por vezes, agressão física ou verbal. Também simboliza atividades repetitivas, como exercícios físicos, treinos ou hábitos (bons ou maus). É a carta das autocríticas severas, dos desentendimentos e da energia sexual. Pode indicar a necessidade de disciplina ou alertar para um ciclo vicioso de conflitos.", 
+        interpretacaoImagem: "O chicote é um instrumento de punição e disciplina, o que lhe confere um tom de dor e conflito. Sua forma dupla (muitas vezes um chicote e uma vassoura de bétula) simboliza a dualidade da discussão, o bate-boca. O movimento repetitivo de chicotear reflete a natureza cíclica dos argumentos ou dos hábitos que a carta representa.", 
+        palavrasChave: ["conflito", "discussões", "repetição", "discórdia", "disciplina", "sexualidade", "autocrítica"], 
+        simNao: { resposta: "Não", justificativa: "Indica conflitos, discussões e discórdia. A energia é de atrito e repetição de problemas, levando a uma resposta negativa." },
+        elemento: "Fogo", 
+        signo: "Gêmeos", 
+        planeta: "Marte", 
+        naipe: "Valete de Paus", 
+        referenciasCabalisticas: "Representa a energia de Geburah (Rigor) em seu aspecto mais severo, o conflito e a purificação pelo fogo da discórdia. Também se liga à repetição e ao ritmo de Hod (Esplendor) quando aplicado a treinos e debates.", 
+        cristais: ["Jaspe Vermelho", "Obsidiana", "Cianita Negra"], 
+        ervas: ["Gengibre", "Pimenta", "Urtiga"] 
+    }, 
+    { 
+        id: 12, 
+        nome: "Os Pássaros", 
+        imagem: "https://imgpx.com/7b9ztdlZrCFV.jpg", 
+        descricao: "Os Pássaros representam a comunicação verbal, as conversas, as fofocas e as negociações. É a carta da troca de informações, seja por telefonemas, reuniões, mensagens ou simplesmente um bate-papo. Geralmente, a comunicação é rápida, agitada e pode envolver mais de uma pessoa. Pode indicar um período de muita ansiedade, estresse e nervosismo. Também pode se referir a um casal (especialmente um casal de idosos) ou a encontros e entrevistas.", 
+        interpretacaoImagem: "Um par de pássaros juntos, chilreando, é a imagem perfeita da comunicação e da troca. O som constante e por vezes agitado dos pássaros reflete a natureza da comunicação que a carta indica: muita fala, agitação e, por vezes, ansiedade. O fato de serem dois reforça a ideia de diálogo ou parceria.", 
+        palavrasChave: ["comunicação", "conversas", "fofocas", "negociações", "estresse", "encontros", "casal"], 
+        simNao: { resposta: "Talvez", justificativa: "Simboliza conversas e comunicação, mas também ansiedade e agitação. A resposta depende da natureza da comunicação, que pode ser positiva ou negativa." },
+        elemento: "Ar", 
+        signo: "Sagitário", 
+        planeta: "Mercúrio", 
+        naipe: "Sete de Ouros", 
+        referenciasCabalisticas: "Associado ao mundo mental de Yetzirah e à esfera de Hod (Esplendor, Intelecto), o centro da comunicação. Representa a troca de ideias, a tagarelice e a transmissão de conhecimento de forma rápida.", 
+        cristais: ["Sodalita", "Crisocola", "Ágata Blue Lace"], 
+        ervas: ["Lavanda", "Melissa", "Anis"] 
+    }, 
+    { 
+        id: 13, 
+        nome: "A Criança", 
+        imagem: "https://imgpx.com/UsUYkGzcEH9I.jpg", 
+        descricao: "A Criança simboliza um novo começo, a inocência, a pureza e a simplicidade. Representa o início de algo, seja um projeto, um relacionamento ou uma nova fase da vida. Fala de curiosidade, de aprender e de ver o mundo com olhos novos. Pode representar uma criança literal, ou o nosso lado infantil. É uma carta de potencial, mas também de imaturidade e ingenuidade. Traz uma energia leve, alegre e despretensiosa.", 
+        interpretacaoImagem: "A figura de uma criança brincando evoca sentimentos de alegria, simplicidade e um futuro cheio de possibilidades. A criança é pequena, o que indica que o início que ela representa também é pequeno e precisa de cuidado para crescer. Sua inocência pode ser uma bênção, mas também uma vulnerabilidade.", 
+        palavrasChave: ["novo começo", "inocência", "simplicidade", "criança", "imaturidade", "curiosidade", "pequeno"], 
+        simNao: { resposta: "Sim", justificativa: "Representa um novo começo, inocência e potencial. A energia é positiva e aberta a novas possibilidades." },
+        elemento: "Fogo", 
+        signo: "Aquário", 
+        planeta: "Sol", 
+        naipe: "Valete de Espadas", 
+        referenciasCabalisticas: "Associada à energia de Tiphareth (Beleza), o Filho, o centro do ser. Representa o potencial puro, o início de um novo ciclo de crescimento e a necessidade de nutrir o que é novo e vulnerável.", 
+        cristais: ["Citrino", "Âmbar", "Calcita Laranja"], 
+        ervas: ["Camomila", "Erva-doce", "Calêndula"] 
+    }, 
+    { 
+        id: 14, 
+        nome: "A Raposa", 
+        imagem: "https://imgpx.com/8D27LHPbe0Sn.jpg", 
+        descricao: "A Raposa é a carta da astúcia, da inteligência e da estratégia, mas também da armadilha e do engano. Ela alerta para a necessidade de ser esperto e cauteloso, pois algo pode não ser o que parece. Pode indicar uma pessoa ardilosa ou uma situação que exige planejamento cuidadoso. No contexto do trabalho, é uma carta excelente, representando a expertise e a dedicação ao ofício. No entanto, em relacionamentos, pode alertar para falsidade ou interesses ocultos. É a carta do 'fique esperto'.", 
+        interpretacaoImagem: "A raposa é conhecida por sua inteligência e habilidade de caça. Sua reputação no folclore é de um animal esperto e muitas vezes traiçoeiro. Na imagem, ela está muitas vezes à espreita, observando, planejando seu próximo movimento. Isso simboliza a necessidade de estratégia, mas também o perigo de ser enganado ou de cair em uma armadilha.", 
+        palavrasChave: ["astúcia", "estratégia", "engano", "armadilha", "cautela", "trabalho", "planejamento"], 
+        simNao: { resposta: "Talvez", justificativa: "A carta da astúcia e do engano. A resposta é incerta, pois alerta para a necessidade de cautela e que algo pode não ser o que parece." },
+        elemento: "Terra", 
+        signo: "Virgem", 
+        planeta: "Mercúrio", 
+        naipe: "Nove de Paus", 
+        referenciasCabalisticas: "Representa a inteligência estratégica de Hod (Esplendor), a capacidade de planejar e executar com precisão. Em seu aspecto negativo, é o engano e a manipulação da verdade.", 
+        cristais: ["Olho de Tigre", "Citrino", "Jaspe Vermelho"], 
+        ervas: ["Alecrim", "Gengibre", "Menta"] 
+    }, 
+    { 
+        id: 15, 
+        nome: "O Urso", 
+        imagem: "https://imgpx.com/V4ZiR6F1qJZz.jpg", 
+        descricao: "O Urso representa o poder, a força, a proteção e a liderança. Pode simbolizar uma figura de autoridade, como um chefe, um pai ou uma mãe protetora. Fala de finanças, investimentos e do gerenciamento de recursos. O urso é forte e protetor com os seus, mas pode ser feroz e ciumento. Esta carta alerta para a inveja e para o excesso de controle. É a força bruta, que pode ser usada para construir e proteger, ou para dominar e destruir.", 
+        interpretacaoImagem: "O urso é um animal grande e poderoso, um símbolo de força e autoridade na natureza. Sua postura imponente na carta evoca poder e proteção. A imagem de uma mãe ursa protegendo seus filhotes é a chave para o seu lado de cuidado e ciúme. Sua força financeira vem da ideia de 'hibernar' ou guardar recursos para o futuro.", 
+        palavrasChave: ["poder", "força", "proteção", "liderança", "finanças", "ciúme", "inveja"], 
+        simNao: { resposta: "Talvez", justificativa: "Representa força e poder, que pode ser usado para proteger (sim) ou para dominar e controlar por ciúme (não). A resposta depende da aplicação dessa força." },
+        elemento: "Terra", 
+        signo: "Leão", 
+        planeta: "Júpiter", 
+        naipe: "Dez de Paus", 
+        referenciasCabalisticas: "Associado à energia de Geburah (Força, Poder) e à autoridade de Chesed (Misericórdia, Liderança). Representa o poder de governar e proteger, mas também o perigo do abuso desse poder.", 
+        cristais: ["Olho de Tigre", "Pirita", "Jaspe Marrom"], 
+        ervas: ["Carvalho", "Canela", "Cravo"] 
+    }, 
+    { 
+        id: 16, 
+        nome: "A Estrela", 
+        imagem: "https://imgpx.com/RVkVZOAuEeFF.jpg", 
+        descricao: "A Estrela é a carta da esperança, da inspiração, da fé e da orientação divina. Representa sucesso, reconhecimento e a realização de um sonho. É um guia luminoso em tempos de escuridão, mostrando o caminho a seguir. Fala de destino, de seguir sua intuição e de ter esperança no futuro. É uma carta extremamente positiva, que promete sucesso, fama e boa sorte. Indica que você está no caminho certo e que seus esforços serão recompensados.", 
+        interpretacaoImagem: "Uma estrela brilhante no céu noturno é um símbolo universal de esperança e guia. Como a Estrela do Norte, ela fornece uma direção fixa e segura. Sua luz representa a inspiração divina e a clareza espiritual. As múltiplas estrelas podem simbolizar a vastidão das possibilidades e a conexão com o universo.", 
+        palavrasChave: ["esperança", "inspiração", "sucesso", "guia", "fé", "sonhos", "destino"], 
+        simNao: { resposta: "Sim", justificativa: "É a carta da esperança, do sucesso e da orientação divina, sendo uma das respostas mais positivas do baralho." },
+        elemento: "Ar", 
+        signo: "Aquário", 
+        planeta: "Vênus", 
+        naipe: "Seis de Copas", 
+        referenciasCabalisticas: "Fortemente ligada a Netzach (Vitória, Emoção) e à inspiração que flui do divino. É a luz de Kether (A Coroa) refletida em Tiphareth (Beleza), guiando a alma em sua jornada.", 
+        cristais: ["Selenita", "Pedra da Estrela", "Lápis-lazúli"], 
+        ervas: ["Jasmim", "Sândalo", "Anis Estrelado"] 
+    }, 
+    { 
+        id: 17, 
+        nome: "A Cegonha", 
+        imagem: "https://imgpx.com/cHjtGMKv1mB8.jpg", 
+        descricao: "A Cegonha é a carta das mudanças, das novidades e dos ciclos. Representa a chegada de algo novo, como uma gravidez, um novo membro na família, uma mudança de casa ou de emprego. As mudanças trazidas pela Cegonha são geralmente positivas e esperadas. Fala de movimento, de viagens (principalmente aéreas) e da busca por um lugar melhor. É a carta da primavera, da renovação e do progresso.", 
+        interpretacaoImagem: "A cegonha é famosa no folclore por trazer os bebês, o que a torna o símbolo perfeito para a chegada do novo. Sua natureza migratória reflete a ideia de mudança de local e de estação. Ela voa, indicando que as mudanças podem acontecer rapidamente e nos levar a um patamar mais elevado.", 
+        palavrasChave: ["mudanças", "novidades", "gravidez", "renovação", "viagem", "progresso", "ciclos"], 
+        simNao: { resposta: "Sim", justificativa: "Anuncia mudanças positivas, progresso e novidades, indicando um desenvolvimento favorável." },
+        elemento: "Ar", 
+        signo: "Câncer", 
+        planeta: "Lua", 
+        naipe: "Dama de Copas", 
+        referenciasCabalisticas: "Associada à energia da mudança e do fluxo de Yesod (A Fundação). Representa o ciclo de nascimento e renovação, a transição de um estado para outro, guiada pela intuição.", 
+        cristais: ["Pedra da Lua", "Quartzo Rosa", "Angelita"], 
+        ervas: ["Erva-cidreira", "Calêndula", "Dente-de-leão"] 
+    }, 
+    { 
+        id: 18, 
+        nome: "O Cão", 
+        imagem: "https://imgpx.com/SoHxKjwmMCfz.jpg", 
+        descricao: "O Cão é o símbolo da amizade, da lealdade, da fidelidade e da confiança. Representa um amigo verdadeiro, um parceiro leal ou alguém em quem você pode confiar incondicionalmente. Fala de apoio, proteção e companheirismo. É uma carta que traz segurança e a certeza de que não estamos sozinhos. Pode indicar a chegada de um novo amigo ou a necessidade de buscar ajuda e conselho de pessoas de confiança.", 
+        interpretacaoImagem: "O cão é conhecido como 'o melhor amigo do homem', e sua imagem evoca sentimentos de lealdade, alegria e proteção. Sua postura atenta e fiel na carta mostra que ele está sempre pronto para ajudar e defender seu dono. Ele representa o amor incondicional e a confiança que formam a base de uma verdadeira amizade.", 
+        palavrasChave: ["amizade", "lealdade", "fidelidade", "confiança", "apoio", "proteção", "parceria"], 
+        simNao: { resposta: "Sim", justificativa: "Simboliza lealdade, amizade e confiança, garantindo um apoio fiel e um resultado positivo." },
+        elemento: "Terra", 
+        signo: "Leão", 
+        planeta: "Sol", 
+        naipe: "Dez de Copas", 
+        referenciasCabalisticas: "Ligado à lealdade e à camaradagem de Tiphareth (Beleza, Harmonia). Representa a confiança e o suporte mútuo que encontramos nas relações verdadeiras, um pilar de apoio em Yesod (A Fundação).", 
+        cristais: ["Lápis-lazúli", "Sodalita", "Ágata Blue Lace"], 
+        ervas: ["Alecrim", "Manjericão", "Tomilho"] 
+    }, 
+    { 
+        id: 19, 
+        nome: "A Torre", 
+        imagem: "https://imgpx.com/6SKXKfBZt4VP.jpg", 
+        descricao: "A Torre no Lenormand é diferente da do Tarot. Aqui, ela representa estruturas, instituições, autoridades e isolamento. Pode simbolizar grandes empresas, hospitais, escolas, prédios governamentais ou qualquer organização oficial. Fala de burocracia, regras e estruturas sólidas. Também pode indicar um sentimento de solidão, de se fechar para o mundo ou de ver as coisas de uma perspectiva mais elevada e distanciada. Representa a busca por segurança através da estrutura, mas também o risco de se isolar.", 
+        interpretacaoImagem: "Uma torre alta e solitária, muitas vezes em um local isolado, simboliza a separação do mundo exterior. Sua estrutura sólida representa a força das instituições e das regras. Olhar do topo de uma torre oferece uma visão ampla, mas distanciada, refletindo tanto a autoridade quanto o isolamento que a carta pode significar.", 
+        palavrasChave: ["instituições", "autoridade", "isolamento", "burocracia", "estruturas", "proteção", "solidão"], 
+        simNao: { resposta: "Talvez", justificativa: "Representa estruturas e autoridade, mas também isolamento. A resposta é incerta, pois pode indicar tanto um resultado sólido e oficial quanto solidão e distanciamento." },
+        elemento: "Terra", 
+        signo: "Capricórnio", 
+        planeta: "Saturno", 
+        naipe: "Seis de Espadas", 
+        referenciasCabalisticas: "Associada à estrutura e às limitações de Binah (Entendimento) e à autoridade de Geburah (Rigor). Representa as estruturas sociais e governamentais que formam o esqueleto do mundo em Malkuth.", 
+        cristais: ["Ônix", "Quartzo Fumê", "Hematita"], 
+        ervas: ["Cipreste", "Cedro", "Vetiver"] 
+    }, 
+    { 
+        id: 20, 
+        nome: "O Jardim", 
+        imagem: "https://imgpx.com/6Fmy3y5xGmcR.jpg", 
+        descricao: "O Jardim é a carta da vida social, dos eventos, dos encontros e do público. Representa festas, reuniões, networking e qualquer atividade que envolva um grupo de pessoas. Fala sobre a nossa imagem pública e como nos relacionamos com a sociedade. É um convite para sair, socializar e se conectar com os outros. Pode indicar um evento ao ar livre, uma feira, um show ou simplesmente um passeio no parque. É a esfera pública em oposição à esfera privada da Casa.", 
+        interpretacaoImagem: "Um jardim bem cuidado, com flores e fontes, é um local de encontro e lazer. É um espaço público projetado para o prazer e a socialização. As pessoas passeando e conversando no jardim simbolizam a interação social, a cultura e a vida em comunidade. É o espaço onde nos mostramos ao mundo.", 
+        palavrasChave: ["vida social", "eventos", "encontros", "público", "sociedade", "festas", "networking"], 
+        simNao: { resposta: "Sim", justificativa: "Representa vida social, encontros e eventos públicos, indicando uma resposta positiva no que tange a interações e visibilidade." },
+        elemento: "Ar", 
+        signo: "Libra", 
+        planeta: "Vênus", 
+        naipe: "Oito de Espadas", 
+        referenciasCabalisticas: "Representa a interação social e a harmonia de grupo, energias de Tiphareth (Beleza) e Netzach (Vitória, Emoção). É o espaço onde o indivíduo se conecta com o coletivo, a teia de relações em Yesod.", 
+        cristais: ["Crisocola", "Aventurina", "Quartzo Rosa"], 
+        ervas: ["Rosa", "Jasmim", "Gerânio"] 
+    }, 
+    { 
+        id: 21, 
+        nome: "A Montanha", 
+        imagem: "https://imgpx.com/VPPcpfFftZUU.jpg", 
+        descricao: "A Montanha representa um grande obstáculo, um desafio significativo que bloqueia o caminho. Fala de atrasos, dificuldades e da necessidade de grande esforço e paciência para superar um problema. Pode indicar inimigos poderosos, ou um sentimento de estar preso e sem saída. A montanha é um teste de resistência e determinação. Embora seja um obstáculo, ela não é intransponível, mas exige planejamento e perseverança para ser escalada ou contornada.", 
+        interpretacaoImagem: "Uma montanha alta e imponente bloqueando a paisagem é a imagem perfeita de um obstáculo. Sua escala massiva indica a magnitude do desafio. A dificuldade de escalar uma montanha simboliza o esforço e o tempo necessários para superar o problema. Ela nos força a parar, reavaliar e encontrar uma nova rota.", 
+        palavrasChave: ["obstáculo", "desafio", "atraso", "dificuldade", "inimigo", "esforço", "bloqueio"], 
+        simNao: { resposta: "Não", justificativa: "Simboliza um grande obstáculo, bloqueios e atrasos significativos, indicando uma resposta negativa e um caminho difícil." },
+        elemento: "Terra", 
+        signo: "Capricórnio", 
+        planeta: "Saturno", 
+        naipe: "Oito de Paus", 
+        referenciasCabalisticas: "Associada aos desafios e limitações de Saturno em Binah. Representa um teste de Geburah (Força, Rigor), um bloqueio que exige determinação e estratégia para ser superado. É um guardião do umbral.", 
+        cristais: ["Granada", "Quartzo Fumê", "Obsidiana"], 
+        ervas: ["Tomilho", "Gengibre", "Cedro"] 
+    }, 
+    { 
+        id: 22, 
+        nome: "O Caminho", 
+        imagem: "https://imgpx.com/7veJ5Giu7its.jpg", 
+        descricao: "O Caminho (ou Os Caminhos) representa uma escolha, uma decisão a ser tomada. Fala de alternativas, de livre-arbítrio e da necessidade de escolher uma direção. Pode indicar uma bifurcação na vida, onde duas ou mais opções se apresentam. Esta carta nos lembra que somos responsáveis por nossas escolhas e que cada decisão nos levará a um destino diferente. Pode também indicar viagens curtas ou a necessidade de encontrar uma solução para um problema.", 
+        interpretacaoImagem: "A imagem de uma estrada que se divide em duas ou mais direções é o símbolo clássico da escolha. Não há como seguir todos os caminhos ao mesmo tempo; uma decisão deve ser feita. A paisagem ao redor de cada caminho pode dar pistas sobre a natureza de cada escolha. A carta nos coloca em uma encruzilhada.", 
+        palavrasChave: ["escolha", "decisão", "alternativas", "livre-arbítrio", "soluções", "dúvida", "oportunidades"], 
+        simNao: { resposta: "Talvez", justificativa: "Apresenta uma escolha ou uma decisão a ser tomada. A resposta não está definida, pois depende do caminho que será escolhido." },
+        elemento: "Ar", 
+        signo: "Gêmeos", 
+        planeta: "Mercúrio", 
+        naipe: "Dama de Ouros", 
+        referenciasCabalisticas: "Representa a encruzilhada da vida e o poder de escolha, um atributo fundamental de Tiphareth (Beleza), onde a consciência toma decisões. Reflete a dualidade e as opções apresentadas em Hod (Intelecto).", 
+        cristais: ["Ametista", "Sodalita", "Pietersita"], 
+        ervas: ["Alecrim", "Menta", "Sálvia"] 
+    }, 
+    { 
+        id: 23, 
+        nome: "Os Ratos", 
+        imagem: "https://imgpx.com/7WUie9R4EPlO.jpg", 
+        descricao: "Os Ratos são uma carta de perda, roubo, estresse e deterioração. Eles roem as coisas aos poucos, representando perdas graduais, seja de energia, dinheiro ou bens materiais. Falam de ansiedade, preocupações que nos consomem, e de um ambiente sujo ou insalubre. Alertam para roubos, furtos ou para pessoas que estão se aproveitando de você. Também podem indicar doenças ou o desgaste de uma situação. A ação dos ratos é sorrateira e corrosiva.", 
+        interpretacaoImagem: "Ratos roendo comida ou objetos em um lugar escuro e sujo simbolizam a perda, a sujeira e a doença. Sua natureza prolífica e destrutiva reflete como o estresse e as preocupações podem se multiplicar e consumir nossos recursos. Eles agem na escuridão, representando o perigo oculto e a perda que só percebemos quando o dano já está feito.", 
+        palavrasChave: ["perda", "roubo", "estresse", "ansiedade", "deterioração", "doença", "desgaste"], 
+        simNao: { resposta: "Não", justificativa: "Indicam perdas, roubo, estresse e deterioração, apontando para um resultado negativo e desgastante." },
+        elemento: "Terra", 
+        signo: "Virgem", 
+        planeta: "Plutão", 
+        naipe: "Sete de Paus", 
+        referenciasCabalisticas: "Ligada ao aspecto destrutivo e de decomposição de Netzach (Vitória/Emoção) quando em desequilíbrio. Representa a perda de energia, a ansiedade que corrói a fundação (Yesod) e a matéria (Malkuth).", 
+        cristais: ["Citrino (para proteger finanças)", "Turmalina Negra (para proteção)", "Quartzo Fumê (para limpar estresse)"], 
+        ervas: ["Arruda", "Guiné", "Eucalipto"] 
+    }, 
+    { 
+        id: 24, 
+        nome: "O Coração", 
+        imagem: "https://imgpx.com/WM4ztseQjeZW.jpg", 
+        descricao: "O Coração é a carta do amor, da paixão, dos sentimentos e dos relacionamentos afetivos. Representa o amor romântico, a generosidade, a compaixão e tudo o que é feito com o coração. É uma carta extremamente positiva para questões amorosas, indicando felicidade, reconciliação e a força dos laços afetivos. Fala da nossa capacidade de amar e ser amado. Pode também se referir a uma paixão por um hobby, trabalho ou causa.", 
+        interpretacaoImagem: "O coração é o símbolo universal do amor e das emoções. Sua cor vermelha vibrante na carta simboliza a paixão e a vitalidade dos sentimentos. Muitas vezes adornado com flores ou fitas, ele representa a beleza e a alegria que o amor traz para a vida. É o centro da vida emocional.", 
+        palavrasChave: ["amor", "paixão", "sentimentos", "relacionamento", "generosidade", "felicidade", "compaixão"], 
+        simNao: { resposta: "Sim", justificativa: "É a carta do amor, da paixão e da felicidade, dando uma resposta afirmativa e calorosa, especialmente em questões emocionais." },
+        elemento: "Fogo", 
+        signo: "Leão", 
+        planeta: "Vênus", 
+        naipe: "Valete de Copas", 
+        referenciasCabalisticas: "O centro do ser, Tiphareth (Beleza), que é o coração da Árvore da Vida. Também conectado à esfera de Netzach (Vitória, Emoção), o assento dos sentimentos e paixões. Representa a força unificadora do amor.", 
+        cristais: ["Quartzo Rosa", "Rodocrosita", "Esmeralda"], 
+        ervas: ["Rosa", "Jasmim", "Hibisco"] 
+    }, 
+    { 
+        id: 25, 
+        nome: "O Anel", 
+        imagem: "https://imgpx.com/qOIGbuKncSaR.jpg", 
+        descricao: "O Anel representa contratos, parcerias, associações e compromissos. É a carta das uniões, sejam elas de casamento, de negócios ou qualquer outro tipo de acordo formal. Fala de ciclos, de lealdade e de obrigações. Em um relacionamento, indica um passo sério, como noivado ou casamento. Em negócios, um contrato a ser assinado. O anel nos liga a algo ou alguém. Pode também representar um objeto de valor ou a repetição de um ciclo.", 
+        interpretacaoImagem: "Um anel, com sua forma circular e sem fim, é o símbolo perfeito da união, do compromisso e dos ciclos. A joia que muitas vezes o adorna representa o valor do compromisso assumido. É o objeto que sela um acordo, tornando-o oficial e duradouro.", 
+        palavrasChave: ["contrato", "parceria", "casamento", "compromisso", "união", "ciclo", "lealdade"], 
+        simNao: { resposta: "Sim", justificativa: "Representa compromissos, contratos e uniões. A resposta é sim, indicando um acordo ou um vínculo forte." },
+        elemento: "Água", 
+        signo: "Libra", 
+        planeta: "Vênus", 
+        naipe: "Ás de Paus", 
+        referenciasCabalisticas: "Associado aos pactos e alianças de Tiphareth (Beleza). Sua natureza cíclica conecta-se a Netzach (Vitória) e Hod (Esplendor), as esferas que governam os relacionamentos. Representa um vínculo formado em Yesod (A Fundação).", 
+        cristais: ["Diamante", "Safira", "Jade"], 
+        ervas: ["Jasmim", "Lavanda", "Rosa"] 
+    }, 
+    { 
+        id: 26, 
+        nome: "O Livro", 
+        imagem: "https://imgpx.com/X57HYTXDJrAS.jpg", 
+        descricao: "Os Livros simbolizam o conhecimento, os segredos, os estudos e a educação. Representam informações que estão ocultas ou que ainda serão reveladas. Pode indicar a necessidade de estudar, pesquisar ou aprofundar-se em um assunto. Fala de segredos bem guardados, de mistérios a serem desvendados. Pode ser um curso, uma faculdade, um diário ou um projeto que ainda está em fase de planejamento. O conhecimento aqui é profundo e especializado.", 
+        interpretacaoImagem: "Um livro fechado é a imagem perfeita de um segredo ou de um conhecimento que ainda não foi acessado. Para saber o que há dentro, é preciso abri-lo e estudá-lo. Sua aparência antiga e pesada sugere um saber valioso e profundo. Ele representa a educação formal e a sabedoria oculta.", 
+        palavrasChave: ["conhecimento", "segredos", "estudos", "educação", "oculto", "pesquisa", "descoberta"], 
+        simNao: { resposta: "Talvez", justificativa: "Simboliza segredos e conhecimento oculto. A resposta é incerta até que o segredo seja revelado." },
+        elemento: "Ar", 
+        signo: "Virgem", 
+        planeta: "Mercúrio", 
+        naipe: "Dez de Ouros", 
+        referenciasCabalisticas: "Conectado à esfera de Hod (Esplendor, Intelecto), o centro do conhecimento, da lógica e dos estudos. O livro fechado também pode aludir a Daath (Conhecimento), o conhecimento oculto ou secreto.", 
+        cristais: ["Sodalita", "Lápis-lazúli", "Fluorita"], 
+        ervas: ["Alecrim", "Menta", "Sálvia"] 
+    }, 
+    { 
+        id: 27, 
+        nome: "A Carta", 
+        imagem: "https://imgpx.com/ugYdKReDAEx4.jpg", 
+        descricao: "A Carta representa a comunicação escrita, documentos, e-mails, diplomas e notícias formais. Diferente dos Pássaros (comunicação verbal), a Carta fala de algo tangível e documentado. Pode ser um convite, uma fatura, um contrato, um resultado de exame ou qualquer tipo de correspondência oficial. A informação que ela traz é geralmente superficial e direta. É a notícia que chega de forma rápida, mas registrada.", 
+        interpretacaoImagem: "Uma carta selada ou um documento em um envelope é o símbolo claro de uma mensagem escrita. É algo físico que pode ser guardado e consultado. Sua natureza plana e direta reflete a comunicação objetiva que ela representa, sem a profundidade dos Livros ou a agitação dos Pássaros.", 
+        palavrasChave: ["documento", "notícia", "comunicação escrita", "convite", "e-mail", "diploma", "informação"], 
+        simNao: { resposta: "Talvez", justificativa: "Anuncia notícias ou documentos, cujo conteúdo determinará se o resultado é positivo ou negativo. A carta em si é neutra." },
+        elemento: "Ar", 
+        signo: "Sagitário", 
+        planeta: "Mercúrio", 
+        naipe: "Sete de Espadas", 
+        referenciasCabalisticas: "Associada à comunicação em Hod (Esplendor, Intelecto), mas de uma forma mais estruturada e documentada do que os Pássaros. É a palavra escrita que dá forma e permanência a uma ideia em Malkuth.", 
+        cristais: ["Ágata Blue Lace", "Crisocola", "Howlita"], 
+        ervas: ["Dente-de-leão", "Lavanda", "Anis"] 
+    }, 
+    { 
+        id: 28, 
+        nome: "O Homem", 
+        imagem: "https://imgpx.com/4nCeqU4LeiRR.jpg", 
+        descricao: "O Homem é uma carta pessoal, representando o consulente (se for homem) ou uma figura masculina importante em sua vida (parceiro, pai, irmão, amigo, chefe). Sua interpretação depende inteiramente das cartas ao redor, que descreverão suas características, pensamentos e ações. É uma carta neutra que ancora a leitura em uma pessoa específica. Se o consulente for mulher, esta carta geralmente aponta para o parceiro ou a figura masculina mais significativa no momento.", 
+        interpretacaoImagem: "A imagem de um homem bem-vestido e de postura confiante serve como um significador. Ele olha para a frente, indicando foco no futuro ou em uma direção específica. Os detalhes de sua aparência são menos importantes do que o seu papel como ponto focal masculino na leitura.", 
+        palavrasChave: ["homem", "consulente", "parceiro", "pai", "amigo", "chefe", "figura masculina"], 
+        simNao: { resposta: "Talvez", justificativa: "Carta neutra que representa uma pessoa. A resposta depende inteiramente das cartas que a cercam e descrevem a situação." },
+        elemento: "Fogo", 
+        signo: "Áries", 
+        planeta: "Sol", 
+        naipe: "Ás de Copas", 
+        referenciasCabalisticas: "Representa o princípio masculino, a energia ativa e projetiva, associada a Chokmah (Sabedoria, o Pai) e Tiphareth (o Filho). É o pilar da direita (Pilar da Misericórdia) da Árvore da Vida.", 
+        cristais: ["Olho de Tigre", "Pirita", "Heliotrópio"], 
+        ervas: ["Carvalho", "Cedro", "Gengibre"] 
+    }, 
+    { 
+        id: 29, 
+        nome: "A Mulher", 
+        imagem: "https://imgpx.com/4oPzgA1R5mUF.jpg", 
+        descricao: "A Mulher é uma carta pessoal, representando a consulente (se for mulher) ou uma figura feminina importante em sua vida (parceira, mãe, irmã, amiga, chefe). Assim como O Homem, seu significado é moldado pelas cartas ao seu redor, que detalharão suas qualidades, sentimentos e ações. É uma carta neutra que ancora a leitura. Se o consulente for homem, esta carta geralmente aponta para a parceira ou a figura feminina mais significativa no momento.", 
+        interpretacaoImagem: "A imagem de uma mulher elegante e de postura graciosa serve como um significador. Ela pode olhar para o lado, indicando interesse nas cartas que a cercam. Seu papel é ser o ponto focal feminino na leitura, a quem as energias das outras cartas se referem.", 
+        palavrasChave: ["mulher", "consulente", "parceira", "mãe", "amiga", "chefe", "figura feminina"], 
+        simNao: { resposta: "Talvez", justificativa: "Carta neutra que representa uma pessoa. A resposta depende inteiramente das cartas que a cercam e descrevem a situação." },
+        elemento: "Água", 
+        signo: "Câncer", 
+        planeta: "Lua", 
+        naipe: "Ás de Espadas", 
+        referenciasCabalisticas: "Representa o princípio feminino, a energia receptiva e intuitiva, associada a Binah (Entendimento, a Mãe). É o pilar da esquerda (Pilar do Rigor) da Árvore da Vida.", 
+        cristais: ["Pedra da Lua", "Quartzo Rosa", "Pérola"], 
+        ervas: ["Rosa", "Jasmim", "Artemísia"] 
+    }, 
+    { 
+        id: 30, 
+        nome: "Os Lírios", 
+        imagem: "https://imgpx.com/REvyRGLOnyel.jpg", 
+        descricao: "Os Lírios são a carta da paz, da harmonia, da virtude e da maturidade. Falam de tranquilidade, pureza e contentamento. Representam um período de calma e serenidade após a turbulência. Pode indicar uma pessoa mais velha e sábia, ou a necessidade de agir com integridade e moralidade. Também está associada à sexualidade, mas de uma forma madura e consensual, em oposição à energia bruta do Chicote. É a paz de espírito.", 
+        interpretacaoImagem: "Os lírios brancos são um símbolo tradicional de pureza, paz e virtude. Sua beleza serena e elegante evoca uma sensação de calma e nobreza. A carta transmite uma energia tranquila e elevada, um estado de graça e harmonia com a vida.", 
+        palavrasChave: ["paz", "harmonia", "maturidade", "virtude", "calma", "sexualidade madura", "pureza"], 
+        simNao: { resposta: "Sim", justificativa: "Traz paz, harmonia e maturidade. A energia é serena e virtuosa, indicando um resultado positivo e tranquilo." },
+        elemento: "Ar", 
+        signo: "Virgem", 
+        planeta: "Saturno", 
+        naipe: "Rei de Espadas", 
+        referenciasCabalisticas: "Ligada à paz e à harmonia de Chesed (Misericórdia) e à sabedoria da idade de Chokmah. Representa a pureza de Kether (A Coroa) manifestada como uma vida virtuosa em Malkuth.", 
+        cristais: ["Selenita", "Quartzo Branco", "Howlita"], 
+        ervas: ["Lírio", "Lavanda", "Sândalo"] 
+    }, 
+    { 
+        id: 31, 
+        nome: "O Sol", 
+        imagem: "https://imgpx.com/dIMz8VNeYLJ0.jpg", 
+        descricao: "O Sol é uma das cartas mais positivas do baralho. Representa o sucesso, a vitalidade, a alegria e a grande sorte. É a carta da vitória, da clareza total e da energia. Traz felicidade, autoconfiança e a realização de todos os objetivos. Dissipa todas as sombras das Nuvens e ilumina o caminho. O sucesso indicado pelo Sol é grandioso e inquestionável. É a força da vida no seu auge.", 
+        interpretacaoImagem: "O sol radiante, com seus raios de luz e calor, é o símbolo máximo da vida, da energia e da clareza. Sua presença no céu domina tudo, assim como o sucesso que esta carta representa. Ele ilumina tudo, não deixando espaço para dúvidas ou segredos. É a pura afirmação da vida e da felicidade.", 
+        palavrasChave: ["sucesso", "alegria", "vitalidade", "grande sorte", "vitória", "clareza", "energia"], 
+        simNao: { resposta: "Sim", justificativa: "É a carta do sucesso absoluto, da alegria e da vitalidade. É a resposta mais afirmativa e positiva do baralho." },
+        elemento: "Fogo", 
+        signo: "Leão", 
+        planeta: "Sol", 
+        naipe: "Ás de Ouros", 
+        referenciasCabalisticas: "A carta de Tiphareth (Beleza), o centro da Árvore da Vida, a esfera do Sol. Representa o sucesso, a iluminação, a consciência crística e a harmonia perfeita. É a fonte de toda a luz e vida no sistema.", 
+        cristais: ["Citrino", "Pedra do Sol", "Pirita"], 
+        ervas: ["Girassol", "Calêndula", "Hipérico"] 
+    }, 
+    { 
+        id: 32, 
+        nome: "A Lua", 
+        imagem: "https://imgpx.com/PEAGGia5z8i7.jpg", 
+        descricao: "A Lua é a carta das emoções, da intuição, do reconhecimento e da fama. Fala do nosso mundo interior, dos nossos sentimentos, sonhos e da nossa sensibilidade. Representa o reconhecimento público pelo nosso trabalho e talentos, podendo levar à fama e honrarias. É a carta da imaginação, da criatividade e do romance. No entanto, também pode indicar ilusões, emoções flutuantes e a influência do passado.", 
+        interpretacaoImagem: "A lua no céu, com suas fases, simboliza os ciclos das emoções e da intuição. Sua luz prateada e misteriosa ilumina a noite, representando o mundo dos sonhos, da imaginação e do inconsciente. É a luz que nos torna visíveis para o público, trazendo reconhecimento e honra.", 
+        palavrasChave: ["emoções", "intuição", "reconhecimento", "fama", "criatividade", "romance", "ilusões"], 
+        simNao: { resposta: "Talvez", justificativa: "Representa emoções, intuição e reconhecimento, mas também pode indicar ilusões. A resposta depende se a situação é real ou uma fantasia." },
+        elemento: "Água", 
+        signo: "Câncer", 
+        planeta: "Lua", 
+        naipe: "Oito de Copas", 
+        referenciasCabalisticas: "Associada à esfera de Yesod (A Fundação), o repositório do inconsciente, das emoções e da imaginação. É o espelho que reflete a luz do Sol (Tiphareth) no mundo noturno da alma. Governa os ciclos e a intuição.", 
+        cristais: ["Pedra da Lua", "Selenita", "Labradorita"], 
+        ervas: ["Artemísia", "Jasmim", "Sândalo"] 
+    }, 
+    { 
+        id: 33, 
+        nome: "A Chave", 
+        imagem: "https://imgpx.com/V4HI3pHzpxBF.jpg", 
+        descricao: "A Chave é a carta da solução, do sucesso garantido e das respostas. Ela indica que você tem a solução para um problema em suas mãos. É a carta que abre portas e revela segredos. Garante o sucesso em qualquer empreendimento. Representa descobertas importantes e a certeza de estar no caminho certo. É uma carta de destino, que mostra que algo importante está prestes a se concretizar. O sucesso é certo e está ao seu alcance.", 
+        interpretacaoImagem: "Uma chave, muitas vezes dourada e ornamentada, é o instrumento que abre o que está fechado. Ela simboliza o acesso, a solução e a descoberta. Ter a chave significa ter o poder de destravar um problema, encontrar uma resposta ou acessar um novo nível de entendimento ou oportunidade. É o 'eureca!' do baralho.", 
+        palavrasChave: ["solução", "sucesso", "respostas", "certeza", "descoberta", "destino", "abrir portas"], 
+        simNao: { resposta: "Sim", justificativa: "É a carta da solução e do sucesso garantido. Indica que a resposta é um \"sim\" definitivo e que o caminho está aberto." },
+        elemento: "Fogo", 
+        signo: "Sagitário", 
+        planeta: "Júpiter", 
+        naipe: "Oito de Ouros", 
+        referenciasCabalisticas: "Representa a chave do conhecimento (Daath) que abre as portas da percepção. É a solução que surge da união da sabedoria (Chokmah) e do entendimento (Binah), revelando o caminho certo.", 
+        cristais: ["Pirita", "Olho de Tigre", "Citrino"], 
+        ervas: ["Alecrim", "Louro", "Sálvia"] 
+    }, 
+    { 
+        id: 34, 
+        nome: "Os Peixes", 
+        imagem: "https://imgpx.com/ZreMsN3Wnqnq.jpg", 
+        descricao: "Os Peixes são a carta da abundância, da prosperidade, dos negócios e do dinheiro. Representam o fluxo de recursos, o comércio e os bons investimentos. É uma carta excelente para finanças, indicando lucros, multiplicação e riqueza. Fala de negócios que fluem bem e da capacidade de gerar prosperidade. Pode também indicar movimento, como os peixes em um cardume, e a necessidade de 'mergulhar fundo' em um projeto ou questão.", 
+        interpretacaoImagem: "Um cardume de peixes nadando livremente na água simboliza a abundância, a fertilidade e o movimento. A água representa o fluxo, e os peixes, os recursos que se movem dentro desse fluxo. Sua multiplicidade reforça a ideia de riqueza e prosperidade contínua.", 
+        palavrasChave: ["abundância", "dinheiro", "negócios", "prosperidade", "fluxo", "investimentos", "riqueza"], 
+        simNao: { resposta: "Sim", justificativa: "Simboliza abundância, dinheiro e negócios prósperos, indicando um resultado positivo e fluído, especialmente em finanças." },
+        elemento: "Água", 
+        signo: "Peixes", 
+        planeta: "Netuno", 
+        naipe: "Rei de Ouros", 
+        referenciasCabalisticas: "Associada à abundância de Chesed (Misericórdia) e ao fluxo de recursos no mundo material de Malkuth. Os peixes, como símbolo da vida nas águas de Binah, representam a fertilidade e a multiplicação.", 
+        cristais: ["Aventurina", "Pirita", "Citrino"], 
+        ervas: ["Manjericão", "Canela", "Hortelã"] 
+    }, 
+    { 
+        id: 35, 
+        nome: "A Âncora", 
+        imagem: "https://imgpx.com/dEKIuzId9IEp.jpg", 
+        descricao: "A Âncora é a carta da estabilidade, da segurança e da certeza. Representa a chegada a um porto seguro após uma longa jornada. Fala de trabalho estável, de relacionamentos sólidos e de alcançar um objetivo de longo prazo. É a carta que traz firmeza e a sensação de dever cumprido. Traz um fim às incertezas e estabelece uma base sólida para o futuro. No lado negativo, pode indicar estagnação ou dificuldade em sair da zona de conforto.", 
+        interpretacaoImagem: "A âncora é o que prende um navio, impedindo-o de ficar à deriva. Ela simboliza a segurança, a estabilidade e a firmeza. Estar 'ancorado' significa ter chegado a um lugar seguro, ter encontrado estabilidade no trabalho ou nos relacionamentos. É o ponto final de uma busca, o momento de fincar raízes.", 
+        palavrasChave: ["estabilidade", "segurança", "firmeza", "trabalho", "certeza", "objetivo alcançado", "estagnação"], 
+        simNao: { resposta: "Sim", justificativa: "Representa estabilidade, segurança e a concretização de objetivos, garantindo um resultado firme e positivo." },
+        elemento: "Água", 
+        signo: "Touro", 
+        planeta: "Saturno", 
+        naipe: "Nove de Espadas", 
+        referenciasCabalisticas: "Representa a estabilidade e a estrutura final em Malkuth (O Reino). É a manifestação da fundação de Yesod, proporcionando segurança e um ponto fixo em meio ao fluxo da vida. É a materialização de um objetivo.", 
+        cristais: ["Hematita", "Quartzo Fumê", "Sodalita"], 
+        ervas: ["Vetiver", "Cipreste", "Musgo de Carvalho"] 
+    }, 
+    { 
+        id: 36, 
+        nome: "A Cruz", 
+        imagem: "https://imgpx.com/ehy2nU39GeHt.jpg", 
+        descricao: "A Cruz é a carta do destino, do carma, do sofrimento e dos sacrifícios necessários. Representa um fardo pesado, um teste de fé e uma provação que deve ser enfrentada. Fala de dor, tristeza e de responsabilidades que não podemos evitar. É um chamado para a fé e a resignação diante do inevitável. Embora seja uma carta difícil, ela também traz a promessa de vitória e redenção através da superação do sofrimento. É o ponto final da jornada, o teste final.", 
+        interpretacaoImagem: "A cruz é um símbolo poderoso e ambíguo. Representa o sofrimento e o sacrifício, mas também a fé, a redenção e a intersecção entre o divino e o humano. Seu peso simboliza o fardo que carregamos. É o teste final que, uma vez superado, leva à vitória espiritual.", 
+        palavrasChave: ["destino", "carma", "sofrimento", "sacrifício", "fé", "fardo", "vitória"], 
+        simNao: { resposta: "Não", justificativa: "Indica fardos, sofrimento e testes de fé. É uma carta de dificuldades e responsabilidades pesadas, apontando para um resultado negativo." },
+        elemento: "Fogo", 
+        signo: "Peixes", 
+        planeta: "Saturno", 
+        naipe: "Seis de Paus", 
+        referenciasCabalisticas: "Representa o sacrifício e a redenção em Tiphareth, a passagem pelo sofrimento para alcançar um nível mais elevado de consciência. É o ponto de intersecção dos mundos, a prova final em Malkuth antes da ascensão.", 
+        cristais: ["Ametista", "Sugilita", "Lepidolita"], 
+        ervas: ["Mirra", "Olíbano", "Sálvia"] 
+    } 
+]; 
+
+        const cardGrid = document.getElementById('card-grid'); 
+        const searchInput = document.getElementById('search-input'); 
+        const mainContent = document.getElementById('main-content'); 
+        const exploreMenu = document.getElementById('explore-menu'); 
+        const exploreMenuButton = document.getElementById('explore-menu-button'); 
+        const filterInfo = document.getElementById('filter-info'); 
+
+        let currentFilter = { type: null, value: null }; 
+
+        const propertyMap = { 
+            elemento: 'Elemento', 
+            planeta: 'Planeta', 
+            signo: 'Signo', 
+            naipe: 'Naipe' 
+        }; 
+
+        function getUniqueProperties(property) { 
+            const allValues = cardDatabase.map(card => card[property]); 
+            return [...new Set(allValues)].sort(); 
+        } 
+
+        function populateExploreMenu() { 
+            const menuContent = exploreMenu.querySelector('div'); 
+            menuContent.innerHTML = ''; 
+            
+            Object.keys(propertyMap).forEach(prop => { 
+                const header = document.createElement('p'); 
+                header.className = 'px-4 py-2 text-sm font-bold text-amber-700'; 
+                header.textContent = propertyMap[prop]; 
+                menuContent.appendChild(header); 
+
+                const values = getUniqueProperties(prop); 
+                values.forEach(value => { 
+                    const menuItem = document.createElement('a'); 
+                    menuItem.href = '#'; 
+                    menuItem.className = 'text-amber-800 block px-4 py-2 text-sm hover:bg-amber-100'; 
+                    menuItem.textContent = value; 
+                    menuItem.onclick = (e) => { 
+                        e.preventDefault(); 
+                        applyFilter(prop, value); 
+                        exploreMenu.classList.add('hidden'); 
+                    }; 
+                    menuContent.appendChild(menuItem); 
+                }); 
+                 menuContent.appendChild(document.createElement('hr')); 
+            }); 
+
+            const clearFilterItem = document.createElement('a'); 
+            clearFilterItem.href = '#'; 
+            clearFilterItem.className = 'text-red-700 block px-4 py-2 text-sm font-bold hover:bg-red-100'; 
+            clearFilterItem.textContent = 'Limpar Filtro'; 
+            clearFilterItem.onclick = (e) => { 
+                e.preventDefault(); 
+                applyFilter(null, null); 
+                exploreMenu.classList.add('hidden'); 
+            }; 
+            menuContent.appendChild(clearFilterItem); 
+        } 
+
+        exploreMenuButton.addEventListener('click', () => { 
+            exploreMenu.classList.toggle('hidden'); 
+        }); 
+
+        document.addEventListener('click', (event) => { 
+            if (!exploreMenuButton.contains(event.target) && !exploreMenu.contains(event.target)) { 
+                exploreMenu.classList.add('hidden'); 
+            } 
+        }); 
+
+        function applyFilter(type, value) { 
+            currentFilter.type = type; 
+            currentFilter.value = value; 
+            searchInput.value = '';  
+            renderCards(); 
+        } 
+
+        function renderCards() { 
+            cardGrid.innerHTML = ''; 
+            let filteredCards = cardDatabase; 
+
+            const searchTerm = searchInput.value.toLowerCase().trim(); 
+
+            if (searchTerm) { 
+                currentFilter.type = null; 
+                currentFilter.value = null; 
+                filteredCards = cardDatabase.filter(card =>  
+                    card.nome.toLowerCase().includes(searchTerm) || 
+                    card.palavrasChave.some(kw => kw.toLowerCase().includes(searchTerm)) || 
+                    card.elemento.toLowerCase().includes(searchTerm) || 
+                    card.signo.toLowerCase().includes(searchTerm) || 
+                    card.planeta.toLowerCase().includes(searchTerm) || 
+                    card.naipe.toLowerCase().includes(searchTerm) 
+                ); 
+                filterInfo.textContent = `Resultados para: "${searchInput.value}"`; 
+                filterInfo.classList.remove('hidden'); 
+            } else if (currentFilter.type && currentFilter.value) { 
+                filteredCards = cardDatabase.filter(card => card[currentFilter.type] === currentFilter.value); 
+                filterInfo.textContent = `Mostrando cartas por ${propertyMap[currentFilter.type]}: ${currentFilter.value}`; 
+                filterInfo.classList.remove('hidden'); 
+            } else { 
+                 filterInfo.classList.add('hidden'); 
+            } 
+
+            if(filteredCards.length === 0) { 
+                cardGrid.innerHTML = `<p class="col-span-full text-center text-xl text-amber-800">Nenhuma carta encontrada.</p>`; 
+            } else { 
+                filteredCards.forEach(card => { 
+                    const cardElement = document.createElement('div'); 
+                    cardElement.className = 'text-center cursor-pointer group transform hover:scale-105 transition-transform'; 
+                    cardElement.innerHTML = ` 
+                        <div class="bg-white/50 p-2 rounded-lg shadow-lg group-hover:shadow-xl transition-shadow"> 
+                            <img src="${card.imagem}" alt="${card.nome}" class="w-full h-auto rounded-md" loading="lazy"> 
+                        </div> 
+                        <h3 class="font-playfair text-xl mt-2 card-title-home">${card.nome}</h3> 
+                    `; 
+                    cardElement.addEventListener('click', () => showCardDetail(card.id)); 
+                    cardGrid.appendChild(cardElement); 
+                }); 
+            } 
+        } 
+
+        function showView(viewId) { 
+            ['home-view', 'card-detail-view', 'random-draw-view'].forEach(id => { 
+                document.getElementById(id).classList.add('hidden'); 
+            }); 
+            document.getElementById(viewId).classList.remove('hidden'); 
+            window.scrollTo(0, 0); 
+
+            if(viewId === 'home-view'){ 
+                applyFilter(null, null); 
+            } 
+             if(viewId === 'random-draw-view'){ 
+                resetRandomDraw(); 
+            } 
+        } 
+
+        function showCardDetail(cardId) { 
+            const card = cardDatabase.find(c => c.id === cardId); 
+            if (!card) return; 
+
+            const detailView = document.getElementById('card-detail-view'); 
+            const contentContainer = document.getElementById('card-detail-content'); 
+            
+            const textClass = (card.elemento === 'Fogo' || card.elemento === 'Terra') ? 'text-light' : 'text-dark'; 
+            detailView.className = `hidden p-4 md:p-8 vintage-border element-bg-${card.elemento.toLowerCase()} ${textClass}`; 
+
+            contentContainer.innerHTML = ` 
+                <div class="md:col-span-1 flex flex-col items-center gap-4"> 
+                    <img src="${card.imagem}" alt="${card.nome}" class="w-full max-w-sm rounded-lg shadow-2xl"> 
+                    <div class="w-full max-w-sm bg-black/20 p-4 rounded-lg"> 
+                        <h3 class="font-playfair text-2xl mb-4 text-center">Correspondências</h3> 
+                        <ul class="space-y-2 text-sm md:text-base"> 
+                            <li><strong><span class="celestial-symbol align-middle">❓</span> Resposta rápida:</strong> <strong>${card.simNao.resposta}</strong> &mdash; <i>${card.simNao.justificativa}</i></li>
+                            <hr class="border-current/20 my-2">
+                            <li><strong><span class="celestial-symbol align-middle">🔥</span> Elemento:</strong> ${card.elemento}</li> 
+                            <li><strong><span class="celestial-symbol align-middle">🃏</span> Naipe:</strong> ${card.naipe}</li> 
+                            <li><strong><span class="celestial-symbol align-middle">🪐</span> Planeta:</strong> ${card.planeta}</li> 
+                            <li><strong><span class="celestial-symbol align-middle">✨</span> Signo:</strong> ${card.signo}</li> 
+                        </ul> 
+                    </div> 
+                </div> 
+                <div class="md:col-span-2 space-y-6"> 
+                    <h2 class="font-playfair text-5xl">${card.id}. ${card.nome}</h2> 
+                    <div> 
+                        <h3 class="font-playfair text-3xl mb-2 border-b-2 border-current/30 pb-1">Palavras-Chave</h3> 
+                        <p class="italic">${card.palavrasChave.join(', ')}.</p> 
+                    </div> 
+                    <div> 
+                        <h3 class="font-playfair text-3xl mb-2 border-b-2 border-current/30 pb-1">Essência e Significados</h3> 
+                        <p class="whitespace-pre-wrap">${card.descricao}</p> 
+                    </div> 
+                    <div> 
+                        <h3 class="font-playfair text-3xl mb-2 border-b-2 border-current/30 pb-1">Interpretação da Imagem</h3> 
+                        <p class="whitespace-pre-wrap">${card.interpretacaoImagem}</p> 
+                    </div> 
+                    <div> 
+                        <h3 class="font-playfair text-3xl mb-2 border-b-2 border-current/30 pb-1">Afinidades Mágicas</h3> 
+                        <p><strong><span class="celestial-symbol align-middle">💎</span> Cristais:</strong> ${card.cristais.join(', ')}.</p> 
+                        <p><strong><span class="celestial-symbol align-middle">🌿</span> Ervas:</strong> ${card.ervas.join(', ')}.</p> 
+                    </div> 
+                    <div> 
+                        <h3 class="font-playfair text-3xl mb-2 border-b-2 border-current/30 pb-1">Referências Cabalísticas</h3> 
+                        <p class="whitespace-pre-wrap">${card.referenciasCabalisticas}</p> 
+                    </div> 
+                </div> 
+            `; 
+            
+            showView('card-detail-view'); 
+        } 
+
+        const drawButton = document.getElementById('draw-button'); 
+        const shuffleContainer = document.getElementById('shuffle-animation-container'); 
+        const cardFlipContainer = document.getElementById('card-flip-container'); 
+        const randomCardFront = document.getElementById('random-card-front'); 
+
+        function resetRandomDraw(){ 
+            shuffleContainer.classList.add('hidden'); 
+            cardFlipContainer.classList.remove('is-flipped'); 
+            drawButton.disabled = false; 
+            drawButton.innerText = 'Embaralhar e Tirar uma Carta'; 
+            randomCardFront.innerHTML = ''; 
+        } 
+
+        drawButton.addEventListener('click', () => { 
+            drawButton.disabled = true; 
+            drawButton.innerText = 'Embaralhando...'; 
+            shuffleContainer.classList.remove('hidden'); 
+
+            const randomCard = cardDatabase[Math.floor(Math.random() * cardDatabase.length)]; 
+            
+            randomCardFront.innerHTML = `<img src="${randomCard.imagem}" alt="${randomCard.nome}" class="w-full h-full object-cover rounded-lg">`; 
+
+            setTimeout(() => { 
+                cardFlipContainer.classList.add('is-flipped'); 
+            }, 500); 
+
+            setTimeout(() => { 
+                showCardDetail(randomCard.id); 
+            }, 2000); 
+        }); 
+
+        searchInput.addEventListener('input', renderCards); 
+
+        populateExploreMenu(); 
+        renderCards(); 
+    </script> 
+</body> 
+</html>
