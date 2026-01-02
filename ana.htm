@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grimório Interativo do Tarot</title>
+    <title>Cartas de Tarot 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --parchment: #f5eeda;
+            --parchment: #2c2416;
             --ink-black: #3a3a3a;
             --title-red: #8c3b3b;
             --border-gold: #c8a86b;
@@ -151,23 +151,26 @@
 <body class="min-h-screen">
     
     <header class="text-center p-8 vintage-border m-4 md:m-8">
-        <h1 class="text-5xl md:text-7xl mb-2">Almanaque de Tarot</h1>
-        <p class="text-xl">Um guia interativo para o deck Rider-Waite</p>
+        <h1 class="text-5xl md:text-7xl mb-2">Tarot da Ana</h1>
+        <p class="text-xl">Guia para consulta ocasional do deck Rider-Waite</p>
     </header>
 
     <main class="container mx-auto px-4 py-8">
         
         <section id="oraculo" class="mb-12 vintage-border">
-            <h2 class="text-4xl text-center mb-6">Oráculo Diário</h2>
+            <h2 class="text-4xl text-center mb-6">Oráculo Diário (ou pra coisas aleatórias)</h2>
             <div id="oraculo-content" class="text-center">
-                 <p class="mb-6 text-lg">Precisa de um conselho ou uma reflexão? Tire uma carta aleatória e descubra a sua mensagem para hoje.</p>
-                <button id="draw-card-btn" class="bg-title-red text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-red-800 transition-all duration-300 text-xl">Tirar uma Carta</button>
+                 <p class="mb-6 text-lg">Oi Ana! Precisando de um conselho hoje? Bora de reflexão? Whatever.... Tire uma carta aqui e descubra o que te espera (mentalize antes).</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                    <button id="draw-card-btn" class="bg-title-red text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-red-800 transition-all duration-300 text-xl">Tirar uma Carta (resposta rápida)</button>
+                    <button id="draw-three-cards-btn" class="bg-vintage-blue text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-800 transition-all duration-300 text-xl">Tirar Três Cartas (passado / presente / futuro)</button>
+                </div>
                 <div id="card-draw-area" class="mt-8 min-h-[350px] flex flex-col md:flex-row items-center justify-center gap-8"></div>
             </div>
         </section>
 
         <section id="grimorio" class="mb-12 vintage-border">
-            <h2 class="text-4xl text-center mb-6">O Tarot Rider-Waite Completo</h2>
+            <h2 class="text-4xl text-center mb-6">O Deck Rider-Waite Completinho</h2>
             <div id="search-nav" class="mb-8 p-4 bg-parchment/50 rounded-lg">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <input type="text" id="search-box" placeholder="Pesquisar por nome..." class="p-2 rounded-md border-2 border-border-gold bg-parchment focus:outline-none focus:border-title-red">
@@ -196,7 +199,7 @@
     </main>
 
     <footer class="text-center p-6 mt-12 bg-black bg-opacity-10">
-        <p class="text-sm text-ink-black/70">&copy; 2025 - Desenvolvido por Antonio Pasolini e Renata Sheila.</p>
+        <p class="text-sm text-ink-black/70">&copy; 2026 - Desenvolvido por Antonio Pasolini.</p>
     </footer>
 
     <div id="card-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
@@ -1710,6 +1713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('card-modal');
     const closeModalBtn = document.getElementById('close-modal');
     const drawCardBtn = document.getElementById('draw-card-btn');
+    const drawThreeCardsBtn = document.getElementById('draw-three-cards-btn');
     const cardDrawArea = document.getElementById('card-draw-area');
 
     function createCardElement(card) {
@@ -1910,6 +1914,105 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1100);
     }
 
+    function drawThreeRandomCards() {
+        drawThreeCardsBtn.disabled = true;
+        drawThreeCardsBtn.textContent = 'Embaralhando...';
+        cardDrawArea.innerHTML = '';
+    
+        const shuffleContainer = document.createElement('div');
+        shuffleContainer.className = 'shuffle-container flex flex-wrap justify-center items-center gap-2 mb-4';
+        
+        for(let i=0; i<7; i++){
+            const shuffleCard = document.createElement('div');
+            shuffleCard.className = 'card-face card-back';
+            shuffleCard.innerHTML = `&#x2728;`;
+            shuffleCard.style.width = '80px';
+            shuffleCard.style.height = '138px';
+            shuffleCard.style.position = 'relative';
+            shuffleCard.style.transition = 'transform 0.5s ease-out';
+            shuffleContainer.appendChild(shuffleCard);
+        }
+        cardDrawArea.appendChild(shuffleContainer);
+
+        let shuffleCount = 0;
+        const shuffleInterval = setInterval(() => {
+            const cards = shuffleContainer.children;
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            const randomX = (Math.random() - 0.5) * 100;
+            const randomY = (Math.random() - 0.5) * 50;
+            const randomRot = (Math.random() - 0.5) * 40;
+            randomCard.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRot}deg)`;
+            shuffleCount++;
+            if(shuffleCount > 20){
+                clearInterval(shuffleInterval);
+                Array.from(cards).forEach(c => c.style.transform = 'translate(0,0) rotate(0)');
+                setTimeout(revealThreeCards, 500);
+            }
+        }, 100);
+    }
+
+    function revealThreeCards() {
+        cardDrawArea.innerHTML = '';
+        
+        // Sortear 3 cartas diferentes
+        const selectedCards = [];
+        const availableIndices = Array.from({length: tarotDeck.length}, (_, i) => i);
+        
+        for(let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * availableIndices.length);
+            selectedCards.push(tarotDeck[availableIndices[randomIndex]]);
+            availableIndices.splice(randomIndex, 1);
+        }
+
+        const cardsContainer = document.createElement('div');
+        cardsContainer.className = 'flex flex-col md:flex-row items-start justify-center gap-8 flex-wrap';
+
+        selectedCards.forEach((card, index) => {
+            const cardFlipContainer = document.createElement('div');
+            cardFlipContainer.className = 'card-flip';
+            cardFlipContainer.innerHTML = `
+                <div class="card-face card-back">✨</div>
+                <div class="card-face card-front">
+                    <img src="${card.imagem}" alt="${card.nome}" class="w-full h-full object-cover rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/150x258/f5eeda/8c3b3b?text=${card.nome.replace(/\s/g, '+')}';">
+                </div>
+            `;
+            
+            const cardInfoContainer = document.createElement('div');
+            cardInfoContainer.className = 'text-left max-w-xs opacity-0 transition-opacity duration-1000';
+            
+            const cardWrapper = document.createElement('div');
+            cardWrapper.className = 'flex flex-col items-center gap-4';
+            cardWrapper.appendChild(cardFlipContainer);
+            cardWrapper.appendChild(cardInfoContainer);
+            
+            cardsContainer.appendChild(cardWrapper);
+
+            setTimeout(() => {
+                cardFlipContainer.classList.add('is-flipped');
+            }, 100 + (index * 300));
+
+            setTimeout(() => {
+                const keywords = card.palavras_chave.slice(0, 3).join(', ');
+                cardInfoContainer.innerHTML = `
+                    <h3 class="text-2xl mb-2 text-title-red">${card.nome}</h3>
+                    <p class="mb-3 text-sm">${card.descricao.substring(0, 100)}...</p>
+                    <p class="mb-3 text-sm"><strong>Palavras-chave:</strong> ${keywords}</p>
+                    <button class="see-more-btn-three bg-vintage-blue text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-800 transition-all text-sm">Ver Detalhes</button>
+                `;
+                cardInfoContainer.classList.remove('opacity-0');
+                const detailsBtn = cardInfoContainer.querySelector('.see-more-btn-three');
+                detailsBtn.addEventListener('click', () => showCardDetails(card));
+            }, 1100 + (index * 300));
+        });
+
+        cardDrawArea.appendChild(cardsContainer);
+
+        setTimeout(() => {
+            drawThreeCardsBtn.disabled = false;
+            drawThreeCardsBtn.textContent = 'Tirar Três Cartas Novamente';
+        }, 1700);
+    }
+
     closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -1928,6 +2031,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     drawCardBtn.addEventListener('click', drawRandomCard);
+    drawThreeCardsBtn.addEventListener('click', drawThreeRandomCards);
 
     displayCards(tarotDeck);
 });
